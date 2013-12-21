@@ -1,3 +1,11 @@
+# 1.0.19 (2013-12-21)
+
+## Features
+
+- **directive:** 
+  - remove qix directive ([c9405be4](http://github.com/angular-ui/bootstrap/commit/c9405be4))   
+
+
 # 1.0.18 (2013-12-21)
 
 

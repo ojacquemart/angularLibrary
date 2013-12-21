@@ -4,6 +4,7 @@ module.exports = function(grunt) {
 
    grunt.loadNpmTasks('grunt-contrib-watch');
    grunt.loadNpmTasks('grunt-contrib-concat');
+   grunt.loadNpmTasks('grunt-contrib-clean');
    grunt.loadNpmTasks('grunt-contrib-copy');
    grunt.loadNpmTasks('grunt-contrib-jshint');
    grunt.loadNpmTasks('grunt-contrib-uglify');
@@ -12,19 +13,35 @@ module.exports = function(grunt) {
    grunt.loadNpmTasks('grunt-conventional-changelog');
    grunt.loadNpmTasks('grunt-ngdocs');
    grunt.loadNpmTasks("grunt-encode-images");
+   grunt.loadNpmTasks('grunt-bump');
 
    // Project configuration.
    grunt.util.linefeed = '\n';
 
    grunt.initConfig({
-      ngversion: '1.0.8',
-      bsversion: '3.0.2',
-      faversion: '3.2.1',
       modules: [],//to be filled in by build task
       pkg: grunt.file.readJSON('package.json'),
       dist: 'dist',
       filename: 'angular-library',
       filenamecustom: '<%= filename %>-custom',
+      clean: {
+         dist: {
+            dot: true,
+            src: [
+               '.tmp',
+               'dist/*',
+               'dist/.git*'
+            ]
+         }
+      },
+      bump: {
+         options: {
+            files: ['package.json', 'bower.json' ],
+            commitMessage: 'chore(release): v%VERSION%',
+            commitFiles: [ '-a' ],
+            pushTo: 'origin'
+         }
+      },
       meta: {
          modules: 'angular.module("angular.library", [<%= srcModules %>]);',
          tplmodules: 'angular.module("angular.library.tpls", [<%= tplModules %>]);',

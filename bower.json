@@ -1,6 +1,6 @@
 {
   "name": "angular-library",
-  "version": "1.0.12",
+  "version": "1.0.15",
   "description": "AngularJS Library",
   "private": true,
   "ignore": [

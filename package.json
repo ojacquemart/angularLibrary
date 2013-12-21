@@ -1,7 +1,7 @@
 {
   "name": "angular-library",
   "description": "Angular Library",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "main": "src",
   "engines": {
     "node": ">= 0.6.0"
@@ -24,7 +24,8 @@
     "node-markdown": "0.1.1",
     "semver": "~1.1.4",
     "shelljs": "~0.1.4",
-    "grunt-bump": "0.0.13"
+    "grunt-bump": "0.0.13",
+    "grunt-contrib-clean": "~0.5.0"
   },
   "keywords": [],
   "dependencies": {

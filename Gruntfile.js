@@ -156,6 +156,9 @@ module.exports = function(grunt) {
          }
       },
       shell: {
+         'git-add': [
+            'git add dist'
+         ],
          //We use %version% and evluate it at run-time, because <%= pkg.version %>
          //is only evaluated once
          'release-prepare': [

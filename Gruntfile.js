@@ -132,9 +132,9 @@ module.exports = function (grunt) {
       },
       bump: {
          options: {
-            files: ['package.json', 'bower.json' ],
+            files: [ 'package.json', 'bower.json' ],
             commitMessage: 'chore(release): v%VERSION%',
-            commitFiles: ['-a' ],
+            commitFiles: [ '-a' ],
             pushTo: 'origin'
          }
       },
@@ -253,7 +253,7 @@ module.exports = function (grunt) {
     * This task can be executed in 3 different environments: local, Travis-CI and Jenkins-CI
     * we need to take settings for each one into account
     */
-   grunt.registerTask('test', 'Run tests on singleRun karma server', function() {
+   grunt.registerTask('test', 'Run tests on singleRun karma server', function () {
       if (process.env.TRAVIS) {
          grunt.task.run('karma:travis');
       } else {
@@ -265,7 +265,7 @@ module.exports = function (grunt) {
     * Release task.
     * Bumps version, generates changelog and commits everything.
     */
-   grunt.registerTask('release', 'Release', function() {
+   grunt.registerTask('release', 'Release', function () {
       grunt.task.run('bump-only');
       grunt.task.run('changelog');
       grunt.task.run('bump-commit');

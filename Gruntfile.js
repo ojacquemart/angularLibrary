@@ -24,6 +24,12 @@ module.exports = function (grunt) {
       dist: 'dist',
       filename: 'angular-library',
       meta: {
+         banner: '/**\n' +
+            ' * <%= pkg.description %>\n' +
+            ' * @version v<%= pkg.version %><%= buildtag %>\n' +
+            ' * @link <%= pkg.homepage %>\n' +
+            ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' +
+            ' */',
          modules: 'angular.module("angular.library", [<%= srcModules %>]);',
          tplmodules: 'angular.module("angular.library.tpls", [<%= tplModules %>]);',
          all: 'angular.module("angular.library", ["angular.library.tpls", <%= srcModules %>]);'
@@ -45,13 +51,16 @@ module.exports = function (grunt) {
       concat: {
          dist_tpls: {
             options: {
-               banner: '<%= meta.all %>\n<%= meta.tplmodules %>\n'
+               banner: '<%= meta.banner %>\n<%= meta.all %>\n<%= meta.tplmodules %>\n'
             },
             src: [], //src filled in by build task
             dest: '<%= dist %>/js/<%= filename %>-tpls-<%= pkg.version %>.js'
          }
       },
       uglify: {
+         options: {
+            banner: '<%= meta.banner %>'
+         },
          dist_tpls: {
             src: ['<%= dist %>/js/<%= filename %>-tpls-<%= pkg.version %>.js'],
             dest: '<%= dist %>/js/<%= filename %>-tpls-<%= pkg.version %>.min.js'
@@ -187,12 +196,13 @@ module.exports = function (grunt) {
     * @param moduleName the module moduleName.
     */
    function findModule(directory, moduleName) {
-      if (foundModules[moduleName]) {
+      var fullModuleName = directory+'/'+moduleName;
+      if (foundModules[fullModuleName]) {
          return;
       }
-      foundModules[moduleName] = true;
+      foundModules[fullModuleName] = true;
 
-      grunt.log.ok('Find module ' + directory + '/' + moduleName);
+      grunt.log.ok('Find module ' + fullModuleName);
 
       function breakup(text, separator) {
          return text.replace(/[A-Z]/g, function (match) {

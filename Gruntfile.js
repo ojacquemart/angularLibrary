@@ -266,6 +266,7 @@ module.exports = function (grunt) {
     * Bumps version, generates changelog and commits everything.
     */
    grunt.registerTask('release', 'Release', function () {
+      grunt.task.run('default');
       grunt.task.run('bump-only');
       grunt.task.run('changelog');
       grunt.task.run('bump-commit');

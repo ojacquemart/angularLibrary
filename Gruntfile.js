@@ -9,7 +9,6 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-contrib-jshint');
    grunt.loadNpmTasks('grunt-contrib-uglify');
    grunt.loadNpmTasks('grunt-conventional-changelog');
-   grunt.loadNpmTasks('grunt-shell');
    grunt.loadNpmTasks('grunt-bump');
    grunt.loadNpmTasks('grunt-karma');
    grunt.loadNpmTasks('grunt-ngdocs');
@@ -143,8 +142,9 @@ module.exports = function (grunt) {
       bump: {
          options: {
             files: [ 'package.json', 'bower.json' ],
+            updateConfigs: [ 'pkg' ],
             commitMessage: 'chore(release): v%VERSION%',
-            commitFiles: [ 'package.json', 'bower.json', 'CHANGELOG.md' ],
+            commitFiles: [ 'package.json', 'bower.json', 'dist', 'CHANGELOG.md' ],
             pushTo: 'origin'
          }
       },
@@ -152,17 +152,6 @@ module.exports = function (grunt) {
          options: {
             dest: 'CHANGELOG.md',
             templateFile: 'misc/changelog.tpl.md'
-         }
-      },
-      shell: {
-         commitDist: {
-            options: {
-               stdout: true
-            },
-            command: [
-               'git add dist',
-               'git commit -m "Add release files"'
-            ].join('&&')
          }
       }
    });
@@ -178,6 +167,11 @@ module.exports = function (grunt) {
    grunt.registerTask('watch', ['before-test', 'after-test', 'karma:watch', 'delta']);
 
    grunt.registerTask('default', ['before-test', 'test', 'after-test']);
+
+   grunt.registerTask('prepare-release', [ 'bump-only' ]);
+   grunt.registerTask('dist', [ 'default'  ]);
+   grunt.registerTask('perform-release', [ 'bump-commit' ]);
+   grunt.registerTask('release', [ 'prepare-release', 'dist', 'changelog', 'perform-release' ]);
 
    /**
     * Browse a directory to search for modules.
@@ -274,18 +268,6 @@ module.exports = function (grunt) {
       } else {
          grunt.task.run(this.args.length ? 'karma:jenkins' : 'karma:continuous');
       }
-   });
-
-   /**
-    * Release task.
-    * Bumps version, generates changelog and commits everything.
-    */
-   grunt.registerTask('release', 'Release', function () {
-      grunt.task.run('bump-only');
-      grunt.task.run('default');
-      grunt.task.run('shell:commitDist');
-      grunt.task.run('changelog');
-      grunt.task.run('bump-commit');
    });
 
    return grunt;

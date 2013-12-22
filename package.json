@@ -1,7 +1,7 @@
 {
   "name": "angular-library",
   "description": "Angular Library",
-  "version": "1.0.28",
+  "version": "1.0.29",
   "main": "src",
   "engines": {
     "node": ">= 0.6.0"

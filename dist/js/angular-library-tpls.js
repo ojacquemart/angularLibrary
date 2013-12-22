@@ -1,6 +1,6 @@
 /**
  * Angular Library
- * @version v1.0.26
+ * @version v1.0.28
  * @link 
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */

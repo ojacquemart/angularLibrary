@@ -1,3 +1,43 @@
+# 1.0.19 (2013-12-22)
+
+## Features
+
+- **services:** 
+  - add foo, hello and weather (95a118d2)   
+
+## Bug Fixes
+
+- **foo:** 
+  - bad return type (58cf6e5e)   
+
+# 1.0.19 (2013-12-22)
+
+## Features
+
+- **services:** 
+  - add foo, hello and weather (95a118d2)   
+
+## Bug Fixes
+
+- **foo:** 
+  - bad return type (58cf6e5e)   
+
+# 1.0.19 (2013-12-22)
+
+## Features
+
+- **services:** 
+  - add foo, hello and weather (95a118d2)   
+
+
+# 1.0.19 (2013-12-22)
+
+## Features
+
+- **services:** 
+  - add foo, hello and weather (95a118d2)   
+
+
 # 1.0.19 (2013-12-21)
 
 ## Features

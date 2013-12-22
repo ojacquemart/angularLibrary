@@ -140,27 +140,15 @@ module.exports = function (grunt) {
       },
       changelog: {
          options: {
-            dest: 'CHANGELOG.md'
+            dest: 'CHANGELOG.md',
+            templateFile: 'misc/changelog.tpl.md'
          }
       },
       shell: {
-         'git-add': [
-            'git add dist'
-         ],
-         //We use %version% and evluate it at run-time, because <%= pkg.version %>
-         //is only evaluated once
-         'release-prepare': [
-            'grunt before-test after-test',
-            'grunt version', //remove "-SNAPSHOT"
-            'grunt changelog'
-         ],
-         'release-complete': [
-            'git commit CHANGELOG.md package.json -m "chore(release): v%version%"',
-            'git tag %version%'
-         ],
-         'release-start': [
-            'grunt version:minor:"SNAPSHOT"',
-            'git commit package.json -m "chore(release): Starting v%version%"'
+         'release': [
+            'grunt bump-only',
+            'grunt changelog',
+            'grunt bump-commit'
          ]
       }
    });
@@ -271,6 +259,16 @@ module.exports = function (grunt) {
       } else {
          grunt.task.run(this.args.length ? 'karma:jenkins' : 'karma:continuous');
       }
+   });
+
+   /**
+    * Release task.
+    * Bumps version, generates changelog and commits everything.
+    */
+   grunt.registerTask('release', 'Release', function() {
+      grunt.task.run('bump-only');
+      grunt.task.run('changelog');
+      grunt.task.run('bump-commit');
    });
 
    return grunt;

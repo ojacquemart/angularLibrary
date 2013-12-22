@@ -1,7 +1,7 @@
 {
   "name": "angular-library",
   "description": "Angular Library",
-  "version": "1.0.22",
+  "version": "1.0.24",
   "main": "src",
   "engines": {
     "node": ">= 0.6.0"
@@ -9,9 +9,8 @@
   "scripts": {
     "test": "grunt nodeunit"
   },
-   "dependencies": {
-   },
-   "devDependencies": {
+  "dependencies": {},
+  "devDependencies": {
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-uglify": "~0.2.0",
     "grunt-contrib-jshint": "~0.6.0",
@@ -29,6 +28,7 @@
     "grunt-bump": "0.0.13",
     "grunt-contrib-clean": "~0.5.0",
     "grunt-changelog": "~0.1.4",
-     "grunt-encode-images": "~0.1.4"
+    "grunt-encode-images": "~0.1.4",
+    "grunt-shell": "~0.6.1"
   }
 }

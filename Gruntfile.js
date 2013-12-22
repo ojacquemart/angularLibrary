@@ -9,6 +9,7 @@ module.exports = function (grunt) {
    grunt.loadNpmTasks('grunt-contrib-jshint');
    grunt.loadNpmTasks('grunt-contrib-uglify');
    grunt.loadNpmTasks('grunt-conventional-changelog');
+   grunt.loadNpmTasks('grunt-shell');
    grunt.loadNpmTasks('grunt-bump');
    grunt.loadNpmTasks('grunt-karma');
    grunt.loadNpmTasks('grunt-ngdocs');
@@ -54,7 +55,7 @@ module.exports = function (grunt) {
                banner: '<%= meta.banner %>\n<%= meta.all %>\n<%= meta.tplmodules %>\n'
             },
             src: [], //src filled in by build task
-            dest: '<%= dist %>/js/<%= filename %>-tpls-<%= pkg.version %>.js'
+            dest: '<%= dist %>/js/<%= filename %>-tpls.js'
          }
       },
       uglify: {
@@ -62,8 +63,8 @@ module.exports = function (grunt) {
             banner: '<%= meta.banner %>'
          },
          dist_tpls: {
-            src: ['<%= dist %>/js/<%= filename %>-tpls-<%= pkg.version %>.js'],
-            dest: '<%= dist %>/js/<%= filename %>-tpls-<%= pkg.version %>.min.js'
+            src: ['<%= dist %>/js/<%= filename %>-tpls.js'],
+            dest: '<%= dist %>/js/<%= filename %>-tpls.min.js'
          }
       },
       encodeImages: {
@@ -143,7 +144,7 @@ module.exports = function (grunt) {
          options: {
             files: [ 'package.json', 'bower.json' ],
             commitMessage: 'chore(release): v%VERSION%',
-            commitFiles: [ '-a' ],
+            commitFiles: [ 'package.json', 'bower.json', 'CHANGELOG.md' ],
             pushTo: 'origin'
          }
       },
@@ -154,18 +155,22 @@ module.exports = function (grunt) {
          }
       },
       shell: {
-         'release': [
-            'grunt bump-only',
-            'grunt changelog',
-            'grunt bump-commit'
-         ]
+         commitDist: {
+            options: {
+               stdout: true
+            },
+            command: [
+               'git add dist',
+               'git commit -m "Add release files"'
+            ].join('&&')
+         }
       }
    });
 
    //register before and after test tasks so we've don't have to change cli
    //options on the goole's CI server
    grunt.registerTask('before-test', [ 'jshint', 'html2js']);
-   grunt.registerTask('after-test', [ 'build', 'encodeImages']);
+   grunt.registerTask('after-test', [ 'clean:dist', 'build', 'encodeImages']);
 
    //Rename our watch task to 'delta', then make actual 'watch'
    //task build things, then start test server
@@ -276,8 +281,9 @@ module.exports = function (grunt) {
     * Bumps version, generates changelog and commits everything.
     */
    grunt.registerTask('release', 'Release', function () {
-      grunt.task.run('default');
       grunt.task.run('bump-only');
+      grunt.task.run('default');
+      grunt.task.run('shell:commitDist');
       grunt.task.run('changelog');
       grunt.task.run('bump-commit');
    });

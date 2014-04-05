@@ -1,274 +1,275 @@
+'use strict';
+
 var markdown = require('node-markdown').Markdown;
 
+var LIVERELOAD_PORT = 35729;
+var lrSnippet = require('connect-livereload')({ port: LIVERELOAD_PORT });
+var mountFolder = function (connect, dir) {
+    return connect.static(require('path').resolve(dir));
+};
+
 module.exports = function (grunt) {
+    require('load-grunt-tasks')(grunt);
+    require('time-grunt')(grunt);
 
-   grunt.loadNpmTasks('grunt-contrib-watch');
-   grunt.loadNpmTasks('grunt-contrib-concat');
-   grunt.loadNpmTasks('grunt-contrib-clean');
-   grunt.loadNpmTasks('grunt-contrib-copy');
-   grunt.loadNpmTasks('grunt-contrib-jshint');
-   grunt.loadNpmTasks('grunt-contrib-uglify');
-   grunt.loadNpmTasks('grunt-conventional-changelog');
-   grunt.loadNpmTasks('grunt-bump');
-   grunt.loadNpmTasks('grunt-karma');
-   grunt.loadNpmTasks('grunt-ngdocs');
-   grunt.loadNpmTasks('grunt-html2js');
-   grunt.loadNpmTasks("grunt-encode-images");
+    // configurable paths
+    var yeomanConfig = {
+        module: 'angular.library',
+        src: 'src',
+        dist: 'dist',
+        tmp: '.tmp'
+    };
+    try {
+        yeomanConfig.app = require('./bower.json').appPath || yeomanConfig.app;
+    } catch (e) {
+    }
 
-   // Project configuration.
-   grunt.util.linefeed = '\n';
+    grunt.initConfig({
+        filename: 'angular-library',
+        yeoman: yeomanConfig,
+        dist: 'dist',
+        pkg: grunt.file.readJSON('package.json'),
+        meta: {
+            banner: '/**\n' +
+                ' * <%= pkg.description %>\n' +
+                ' * @version v<%= pkg.version %><%= buildtag %>\n' +
+                ' * @link <%= pkg.homepage %>\n' +
+                ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' +
+                ' */'
+        },
 
-   grunt.initConfig({
-      modules: [], //to be filled in by build task
-      pkg: grunt.file.readJSON('package.json'),
-      dist: 'dist',
-      filename: 'angular-library',
-      meta: {
-         banner: '/**\n' +
-            ' * <%= pkg.description %>\n' +
-            ' * @version v<%= pkg.version %><%= buildtag %>\n' +
-            ' * @link <%= pkg.homepage %>\n' +
-            ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' +
-            ' */',
-         modules: 'angular.module("angular.library", [<%= srcModules %>]);',
-         tplmodules: 'angular.module("angular.library.tpls", [<%= tplModules %>]);',
-         all: 'angular.module("angular.library", ["angular.library.tpls", <%= srcModules %>]);'
-      },
-      delta: {
-         docs: {
-            files: ['misc/demo/index.html'],
-            tasks: ['after-test']
-         },
-         html: {
-            files: ['src/js/**/*.tpl.html'],
-            tasks: ['html2js', 'karma:watch:run']
-         },
-         js: {
-            files: ['src/js/**/*.js'],
-            tasks: ['karma:watch:run']
-         }
-      },
-      concat: {
-         dist_tpls: {
-            options: {
-               banner: '<%= meta.banner %>\n<%= meta.all %>\n<%= meta.tplmodules %>\n'
+        // ===========
+        // Common tasks
+        // ===========
+
+        clean: {
+            dist: {
+                dot: true,
+                src: [
+                    '<%= yeoman.tmp %>',
+                    '<%= yeoman.dist %>/*'
+                ]
             },
-            src: [], //src filled in by build task
-            dest: '<%= dist %>/js/<%= filename %>-tpls.js'
-         }
-      },
-      uglify: {
-         options: {
-            banner: '<%= meta.banner %>'
-         },
-         dist_tpls: {
-            src: ['<%= dist %>/js/<%= filename %>-tpls.js'],
-            dest: '<%= dist %>/js/<%= filename %>-tpls.min.js'
-         }
-      },
-      encodeImages: {
-         build: {
-            files: [
-               {
-                  expand: true,
-                  cwd: 'src/css/',
-                  src: '**/*.css',
-                  dest: 'dist/css/'
-               }
-            ]
-         }
-      },
-      html2js: {
-         dist: {
-            options: {
-               module: null, // no bundle module for all the html2js templates
-               base: '.'
-            },
-            files: [
-               {
-                  expand: true,
-                  src: ['src/js/**/*.tpl.html'],
-                  ext: '.html.js'
-               }
-            ]
-         }
-      },
-      jshint: {
-         files: ['Gruntfile.js', 'src/**/*.js'],
-         options: {
-            node: true,
-            curly: true,
-            immed: true,
-            newcap: true,
-            noarg: true,
-            sub: true,
-            boss: true,
-            eqnull: true,
-            globals: {
-               angular: true
+            server: '<%= yeoman.tmp %>'
+        },
+
+        // ===========
+        // Build tasks.
+        // ===========
+
+        /**
+         * Encode images in base64 to embed them in css files.
+         */
+        imageEmbed: {
+            dist: {
+                src: [ '<%= yeoman.src %>/css/main.css'],
+                dest: '<%= yeoman.tmp %>/<%= filename %>.css',
+                options: {
+                    deleteAfterEncoding: false
+                }
             }
-         }
-      },
-      karma: {
-         options: {
-            configFile: 'karma.conf.js'
-         },
-         watch: {
-            background: true
-         },
-         continuous: {
-            singleRun: true
-         },
-         jenkins: {
-            singleRun: true,
-            colors: false,
-            reporter: ['dots', 'junit'],
-            browsers: ['Chrome', 'ChromeCanary', 'Firefox', 'Opera', '/Users/jenkins/bin/safari.sh', '/Users/jenkins/bin/ie9.sh']
-         },
-         travis: {
-            singleRun: true,
-            browsers: ['Firefox']
-         }
-      },
-      clean: {
-         dist: {
-            dot: true,
-            src: [
-               '.tmp',
-               'dist/*'
-            ]
-         }
-      },
-      bump: {
-         options: {
-            files: [ 'package.json', 'bower.json' ],
-            updateConfigs: [ 'pkg' ],
-            commitMessage: 'chore(release): v%VERSION%',
-            commitFiles: [ 'package.json', 'bower.json', 'dist', 'CHANGELOG.md' ],
-            pushTo: 'origin'
-         }
-      },
-      changelog: {
-         options: {
-            dest: 'CHANGELOG.md',
-            templateFile: 'misc/changelog.tpl.md'
-         }
-      }
-   });
+        },
+        /**
+         * Minify css based on the css generated by image-embed.
+         */
+        cssmin: {
+            options: {
+                banner: '<%= meta.banner %>'
+            },
+            dist: {
+                files: {
+                    '<%= yeoman.dist %>/css/<%= filename %>.css': [
+                        '<%= yeoman.tmp %>/<%= filename %>.css'
+                    ]
+                }
+            }
+        },
+        /**
+         * Transform html templates to js to use the $templateCache.
+         */
+        ngtemplates: {
+            app: {
+                options: {
+                    module: '<%= yeoman.module %>',
+                    concat: 'js'
+                },
+                cwd: '<%= yeoman.src %>',
+                src: 'js/**/*.html',
+                dest: '<%= yeoman.tmp %>/templates.js'
+            }
+        },
 
-   //register before and after test tasks so we've don't have to change cli
-   //options on the goole's CI server
-   grunt.registerTask('before-test', [ 'jshint', 'html2js']);
-   grunt.registerTask('after-test', [ 'clean:dist', 'build', 'encodeImages']);
+        /**
+         * Minify angular files
+         */
+        ngmin: {
+            dist: {
+                expand: true,
+                cwd: '<%= yeoman.src %>/js',
+                src: ['**/*.js'],
+                dest: '<%= yeoman.tmp %>/generated'
+            }
+        },
 
-   //Rename our watch task to 'delta', then make actual 'watch'
-   //task build things, then start test server
-   grunt.renameTask('watch', 'delta');
-   grunt.registerTask('watch', ['before-test', 'after-test', 'karma:watch', 'delta']);
+        /**
+         * Concat generates files by ngmin.
+         */
+        concat: {
+            js: {
+                // .mdl must be the first file, it's the module declaration.
+                src: [ '<%= yeoman.tmp %>/generated/library.mdl.js', '<%= yeoman.tmp %>/generated/**/*.js' ],
+                dest: '<%= yeoman.dist %>/js/<%= filename %>-tpls.js',
+                options: {
+                    banner: '<%= meta.banner %>\n'
+                }
+            }
+        },
 
-   grunt.registerTask('default', ['before-test', 'test', 'after-test']);
+        /**
+         * Uglify.
+         */
+        uglify: {
+            options: {
+                banner: '<%= meta.banner %>',
+                mangle: false
+            },
+            js: {
+                src: ['<%= yeoman.dist %>/js/<%= filename %>-tpls.js'],
+                dest: '<%= yeoman.dist %>/js/<%= filename %>-tpls.min.js'
+            }
+        },
 
-   grunt.registerTask('prepare-release', [ 'bump-only' ]);
-   grunt.registerTask('dist', [ 'default'  ]);
-   grunt.registerTask('perform-release', [ 'bump-commit' ]);
-   grunt.registerTask('release', [ 'prepare-release', 'dist', 'changelog', 'perform-release' ]);
+        // ===========
+        // Tests tasks.
+        // ===========
 
-   /**
-    * Browse a directory to search for modules.
-    */
-   function browse(directory) {
-      grunt.file.expand({
-         filter: 'isDirectory', cwd: '.'
-      }, 'src/js/' + directory + '/*').forEach(function (dir) {
-            var split = dir.split('/');
-            var dirToScan = split[split.length - 1];
-            findModule(directory, dirToScan);
-         });
-   }
+        /**
+         * Html w3c validation.
+         */
+        validation: {
+            options: {
+                doctype: 'HTML5',
+                reset: true,
+                relaxerror: [ 'Element head is missing a required instance of child element title.' ]
+            },
+            files: {
+                src: ['<%= yeoman.src %>/js/**/*.html' ]
+            }
+        },
 
-   // To memoize modules.
-   var foundModules = {};
+        /**
+         * Javascript code style.
+         */
+        jshint: {
+            files: ['Gruntfile.js', '<%= yeoman.src %>/js/**/*.js'],
+            options: {
+                node: true,
+                curly: true,
+                immed: true,
+                newcap: true,
+                noarg: true,
+                sub: true,
+                boss: true,
+                eqnull: true,
+                globals: {
+                    angular: true
+                }
+            }
+        },
 
-   /**
-    * Adds a given module to config based on its directory.
-    * @param directory the module directory.
-    * @param moduleName the module moduleName.
-    */
-   function findModule(directory, moduleName) {
-      var fullModuleName = directory+'/'+moduleName;
-      if (foundModules[fullModuleName]) {
-         return;
-      }
-      foundModules[fullModuleName] = true;
+        /**
+         * Karma test runner.
+         */
+        karma: {
+            unit: {
+                configFile: 'karma.conf.js'
+            }
+        },
 
-      grunt.log.ok('Find module ' + fullModuleName);
+        // ===========
+        // Server tasks.
+        // ===========
 
-      function breakup(text, separator) {
-         return text.replace(/[A-Z]/g, function (match) {
-            return separator + match;
-         });
-      }
+        connect: {
+            options: {
+                port: 9001,
+                // Change this to '0.0.0.0' to access the server from outside.
+                hostname: 'localhost'
+            },
+            livereload: {
+                options: {
+                    middleware: function (connect) {
+                        return [
+                            lrSnippet,
+                            mountFolder(connect, '<%= yeoman.tmp %>'),
+                            mountFolder(connect, yeomanConfig.src)
+                        ];
+                    }
+                }
+            }
+        },
 
-      function ucwords(text) {
-         return text.replace(/^([a-z])|\s+([a-z])/g, function ($1) {
-            return $1.toUpperCase();
-         });
-      }
+        /**
+         * Watch and files and reload browser.
+         */
+        watch: {
+            options: {
+                livereload: true
+            },
+            files: {
+                files: ['<%= yeoman.src %>/**/*.html', '<%= yeoman.src %>/css/*.css', '<%= yeoman.src %>/js/**/*.js' ],
+                tasks: [  ]
+            }
+        },
+        concurrent: {
+            server: [ ]
+        },
 
-      function enquote(str) {
-         return '"' + str + '"';
-      }
+        /**
+         * Opens the default browser.
+         */
+        open: {
+            server: {
+                url: 'http://localhost:<%= connect.options.port %>'
+            }
+        },
 
-      var baseDir = "src/js/" + directory + "/" + moduleName + '/';
-      var module = {
-         name: moduleName,
-         moduleName: enquote('angular.library.' + directory + '.' + moduleName),
-         displayName: ucwords(breakup(moduleName, ' ')),
-         srcFiles: grunt.file.expand(baseDir + "*.js").filter(function (name) {
-            return !name.match(/.spec.js$/);
-         }),
-         tplFiles: grunt.file.expand(baseDir + "*.tpl.html"),
-         tpljsFiles: grunt.file.expand(baseDir + "*.html.js"),
-         tplModules: grunt.file.expand(baseDir + "*.tpl.html").map(enquote)
-      };
-      grunt.config('modules', grunt.config('modules').concat(module));
-   }
+        // ===========
+        // Release tasks.
+        // ===========
 
-   /**
-    * The build tasks concat and uglify js sources and templates files.
-    */
-   grunt.registerTask('build', 'Create bootstrap build files', function () {
-      browse('directives');
-      browse('services');
+        bump: {
+            options: {
+                files: [ 'package.json', 'bower.json' ],
+                updateConfigs: [ 'pkg' ],
+                commitMessage: 'chore(release): v%VERSION%',
+                commitFiles: [ 'package.json', 'bower.json', 'dist', 'CHANGELOG.md' ],
+                pushTo: 'origin'
+            }
+        },
+        changelog: {
+            options: {
+                dest: 'CHANGELOG.md',
+                templateFile: 'misc/changelog.tpl.md'
+            }
+        }
+    });
 
-      var modules = grunt.config('modules');
-      var _ = grunt.util._;
-      grunt.config('srcModules', _.pluck(modules, 'moduleName'));
-      grunt.config('tplModules', _.pluck(modules, 'tplModules').filter(function (tpls) {
-         return tpls.length > 0;
-      }));
+    grunt.registerTask('server', function () {
+        grunt.task.run([ 'clean:server', 'concurrent:server', 'connect:livereload', 'open', 'watch' ]);
+    });
 
-      var srcFiles = _.pluck(modules, 'srcFiles');
-      var tpljsFiles = _.pluck(modules, 'tpljsFiles');
+    grunt.registerTask('dist', [ 'default' ]);
+    grunt.registerTask('default', [ 'before-build', 'build' ]);
 
-      // Set the concat-with-templates task to concat the given src & tpl modules
-      grunt.config('concat.dist_tpls.src', grunt.config('concat.dist_tpls.src')
-         .concat(srcFiles).concat(tpljsFiles));
+    grunt.registerTask('before-build', [ 'jshint', 'validation' ]);
+    grunt.registerTask('build', [ 'clean:dist', 'build-css', 'build-js' ]);
+    grunt.registerTask('build-css', [ 'imageEmbed', 'cssmin']);
+    grunt.registerTask('build-js', [ 'ngmin', 'ngtemplates', 'concat', 'uglify' ]);
 
-      grunt.task.run(['concat', 'uglify']);
-   });
+    grunt.registerTask('release', [ 'prepare-release', 'dist', 'changelog', 'perform-release' ]);
+    grunt.registerTask('prepare-release', [ 'bump-only' ]);
+    grunt.registerTask('perform-release', [ 'bump-commit' ]);
 
-   /**
-    * This task can be executed in 3 different environments: local, Travis-CI and Jenkins-CI
-    * we need to take settings for each one into account
-    */
-   grunt.registerTask('test', 'Run tests on singleRun karma server', function () {
-      if (process.env.TRAVIS) {
-         grunt.task.run('karma:travis');
-      } else {
-         grunt.task.run(this.args.length ? 'karma:jenkins' : 'karma:continuous');
-      }
-   });
-
-   return grunt;
+    return grunt;
 };

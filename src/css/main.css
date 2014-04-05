@@ -1,3 +1,9 @@
-/**
- * main.css
- */
+.foo {
+    position: relative;
+    height: 100px;
+    width: 100px;
+}
+
+.logo {
+    background-image: url(../img/angular-logo.png);
+}

@@ -2,5 +2,6 @@ src/bower_components
 node_modules
 dist
 .tmp
+.idea/
 *.iml
 *.html.js

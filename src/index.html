@@ -14,21 +14,34 @@
     <div ng-controller="DemoCtrl">
         <div class="foo logo">
             <span ng-bind="hello"></span>
+
         </div>
+        <hr/>
+        <span>Phones list</span>
+        <ul>
+            <li data-ng-repeat="phone in phones" ng-bind="phone.name"></li>
+        </ul>
         <hr/>
     </div>
 
     <bar></bar>
+    <foo></foo>
 
     <!-- build:js demo.js -->
     <script src="bower_components/angular/angular.js"></script>
+    <script src="bower_components/angular-mocks/angular-mocks.js"></script>
+    <script src="bower_components/underscore/underscore.js"></script>
 
     <script src="js/library.mdl.js"></script>
-    <script src="js/directives/bar/bar.js"></script>
-    <script src="js/directives/foo/foo.js"></script>
+
+    <script src="js/directives/bar/bar.dir.js"></script>
+    <script src="js/directives/foo/foo.dir.js"></script>
+
     <script src="js/services/hello/hello.srv.js"></script>
+    <script src="js/services/weather/weather.srv.js"></script>
 
     <script src="demo.js"></script>
+    <script src="demo-e2e-mocks.js"></script>
     <!-- endbuild -->
 </body>
 

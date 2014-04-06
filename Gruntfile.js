@@ -27,7 +27,6 @@ module.exports = function (grunt) {
     grunt.initConfig({
         filename: 'angular-library',
         yeoman: yeomanConfig,
-        dist: 'dist',
         pkg: grunt.file.readJSON('package.json'),
         meta: {
             banner: '/**\n' +
@@ -217,8 +216,13 @@ module.exports = function (grunt) {
                 livereload: true
             },
             files: {
-                files: ['<%= yeoman.src %>/**/*.html', '<%= yeoman.src %>/css/*.css', '<%= yeoman.src %>/js/**/*.js' ],
-                tasks: [  ]
+                files: [
+                    '<%= yeoman.src %>/**/*.html',
+                    '<%= yeoman.src %>/css/*.css',
+                    '<%= yeoman.src %>/*.js',
+                    '<%= yeoman.src %>/js/**/*.js'
+                ],
+                tasks: [ ]
             }
         },
         concurrent: {
